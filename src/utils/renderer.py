@@ -7,8 +7,6 @@ import math
 
 from utils import utils
 
-FPS = 60
-
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -17,8 +15,6 @@ RED = (200, 50, 50)
 BLUE = (50, 50, 200)
 GREEN = (50, 200, 50)
 YELLOW = (200, 200, 50)
-
-# TODO: draw time
 
 class PygameFrontend:
     def __init__(self, env, env_params, init_state, eval_mode=False, agent_fn=None):
@@ -46,6 +42,7 @@ class PygameFrontend:
         self.clock = pygame.time.Clock()
         self.key = random.PRNGKey(0)
         self.obs, self.state = self.env.reset(self.key, env_params, init_state)
+        self.info = {}
         self.running = True
         rotate_to_map_f = partial(
             utils.convert_to_map_view, map_shape=env_params.map_height_width
@@ -77,7 +74,7 @@ class PygameFrontend:
     def draw_path(self, path_array: jnp.ndarray, agent_pos_map: jnp.ndarray):
         """
         Draws a path over the map in blue.
-        - path_array: [N, 2] deltas in map coordinates (h, w)
+        - path_array: [N, 2] waypoints in map coordinates (h, w)
         - agent_pos_map: starting position of agent in map coordinates (h, w)
         """
         if path_array.shape[0] == 0:
@@ -94,7 +91,7 @@ class PygameFrontend:
         # Draw lines connecting waypoints
         for start, end in zip(pixels[:-1], pixels[1:]):
             pygame.draw.line(self.screen, BLUE, start, end, 3)
-            
+
     def draw_rays_transparent(self, screen: pygame.Surface, agent_pos, rays, cell_size, alpha=80):
         """
         Draw transparent red rays from the agent's position.
@@ -126,7 +123,7 @@ class PygameFrontend:
 
         Parameters:
         - screen: pygame.Surface
-        - info: dict, e.g., {"time": 10, "distance_to_path": 5.2}
+        - info: dict, e.g., {"time": 0.2, "distance_to_path": 5.2}
         - position: (x, y) top-left corner for text
         - font_size: int, font size
         - line_height: vertical spacing between lines
@@ -136,9 +133,11 @@ class PygameFrontend:
         x, y = position
 
         for key, value in info.items():
-            if key == "direction_of_path":
+            if key == "time":
+                value = f"{value:.2f} s"
+            elif key == "direction_of_path":
                 value = f"(x={value[0]:.2f}, y={value[1]:.2f})"
-            if key == "distance_to_path":
+            elif key == "distance_to_path":
                 value = f"{value:.4f}"
             text_surf = font.render(f"{key}: {value}", True, color)
             screen.blit(text_surf, (x, y))
@@ -156,7 +155,7 @@ class PygameFrontend:
         goal_pos = self.rotate_to_map_vmap(jnp.atleast_2d(self.state.goal_pos))[0]
         agent_forward_dir = jnp.flip(self.state.agent_forward_dir) * jnp.array([-1, 1])
         rays = jnp.flip(self.obs.collision_rays, axis=-1) * jnp.array([-1, 1])[None, :]
-        # print("FLIPPED rays", rays.shape)
+
 
         # draw path
         self.draw_path(path_array, agent_pos)
@@ -190,13 +189,13 @@ class PygameFrontend:
 
         # draw rays after obstacles
         self.draw_rays_transparent(self.screen, agent_pos, rays, self.CELL_SIZE)
-        
+
         # Draw agent
         y, x = agent_pos
         center_px = (int((x + 0.5) * self.CELL_SIZE), int((y + 0.5) * self.CELL_SIZE))
         pygame.draw.circle(self.screen, BLUE, center_px, self.AGENT_RADIUS_PX)
 
-        
+
         # Draw agent facing direction
         dir_vec = agent_forward_dir
         norm = math.sqrt(dir_vec[0] ** 2 + dir_vec[1] ** 2) + 1e-6
@@ -206,9 +205,9 @@ class PygameFrontend:
         )
         end_pos = (center_px[0] + dir_vec_px[0], center_px[1] + dir_vec_px[1])
         pygame.draw.line(self.screen, YELLOW, center_px, end_pos, 3)
-        
-        # Draw info
-        self.draw_info(self.screen, self.info) 
+
+        elapsed = int(self.state.time) * self.params.step_size
+        self.draw_info(self.screen, {**self.info, "time": elapsed})
 
         pygame.display.flip()
 
@@ -244,10 +243,7 @@ class PygameFrontend:
                 self.key, self.state, action, self.params
             )
 
-            # print(self.state.static_obstacles)
-            # print(self.obs.collision_rays)
-
             self.draw()
-            self.clock.tick(FPS)
+            self.clock.tick(round(self.params.fps))
 
         pygame.quit()

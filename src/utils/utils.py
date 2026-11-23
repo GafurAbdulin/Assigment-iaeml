@@ -2,9 +2,6 @@ from typing import Tuple
 import chex
 from jax import numpy as jnp
 
-# auto reset
-
-
 # Rotations
 
 

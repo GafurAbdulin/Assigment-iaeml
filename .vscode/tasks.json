@@ -1,0 +1,79 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Robotaxi: Drive manually",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
+      "args": [
+        "src/demo_driving.py",
+        "--controller",
+        "manual",
+        "--nominal"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Robotaxi: Watch the route follower",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
+      "args": [
+        "src/demo_driving.py",
+        "--controller",
+        "route",
+        "--seed",
+        "100003"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Robotaxi: Watch the trained PPO policy",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
+      "args": [
+        "src/demo_driving.py",
+        "--controller",
+        "ppo",
+        "--seed",
+        "200001"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Robotaxi: Train PPO",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
+      "args": [
+        "-u",
+        "src/train_driving.py",
+        "train"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Robotaxi: Evaluate the checkpoint",
+      "type": "process",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
+      "args": [
+        "src/train_driving.py",
+        "evaluate"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

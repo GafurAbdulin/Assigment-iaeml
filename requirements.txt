@@ -1,8 +1,8 @@
-jax
-chex
-optax
-equinox
-flax        # use flax or equinox
-
-numpy
-pygame
+jax==0.12.1
+equinox==0.13.8
+chex==0.1.92
+optax==0.2.9
+numpy==2.5.5
+pygame-ce==2.5.8
+imageio==2.38.2
+imageio-ffmpeg==0.8.1
