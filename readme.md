@@ -1,6 +1,6 @@
-﻿# IAEML Robo-taxi Assignments
+# IAEML Assignments
 
-A JAX driving environment and a PPO agent for Innopolis University's IAEML course. In the 48 × 26 Service Hall, the taxi must turn around two wall sections and avoid moving obstacles. The planned route is about 58 units long. The trained policy reached the goal in 111 of 128 held-out episodes.
+A JAX driving environment and a PPO agent for IAEML course Assigment. In the 48 × 26 Service Hall, the taxi must turn around two wall sections and avoid moving obstacles. The planned route is about 58 units long. The trained policy reached the goal in 111 of 128 held-out episodes.
 
 | Assignment | Report | Video |
 | --- | --- | --- |
